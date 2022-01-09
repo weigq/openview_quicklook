@@ -1,0 +1,36 @@
+{
+  "name": "Openreview Quicklook",
+  "description": "Quicklook the summary of openreview submissions",
+  "version": "0.1",
+  "homepage_url": "https://github.com/weigq/openview_quicklook",
+  "manifest_version": 2,
+  "background": {
+    "scripts": [
+      "background.js"
+    ]
+  },
+  "permissions": [
+    "activeTab"
+  ],
+  "browser_action": {
+  },
+  "icons": {
+    "128": "/logo.png"
+  },
+  "options_page": "options.html",
+  "web_accessible_resources": [
+    "right-arrow.svg",
+    "left-arrow.svg"
+  ],
+  "content_scripts": [
+    {
+      "run_at": "document_end",
+      "css": ["style.min.css"],
+      "js": [
+        "content.min.js"
+      ],
+      "matches": ["https://openreview.net/*"]
+    }
+  ],
+  "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
+}
