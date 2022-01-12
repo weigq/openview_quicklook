@@ -2,14 +2,14 @@
 
 ![logo](logo.png)
 
-👏 A browser extension to quickly get 👀 the summary information (💯💯💯rating/score and decision) of submissions on Openreview.
+A browser extension to quickly get the summary information (💯💯💯rating/score and decision) of submissions on Openreview.
 
 ![screenshot](assets/screenshot.png)
 
 Extension available:
 
 [![Chrome](assets/chrome.png "Chrome")](https://chrome.google.com/webstore/detail/openreview-quicklook/efoabjckcjahofacmgekfhjadpjlmcap?hl=en&authuser=0)
-[![Edge](assets/edge.png "Edge")](https://chrome.google.com/webstore/detail/openreview-quicklook/efoabjckcjahofacmgekfhjadpjlmcap?hl=en&authuser=0)
+[![Edge](assets/edge.png "Edge")](https://microsoftedge.microsoft.com/addons/detail/openreview-quicklook/filopbleifodbgnhaelacfmddhookhka)
 
 ----
 
