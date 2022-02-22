@@ -35,7 +35,7 @@ function parseData(reviews, decision) {
         else {
             let rating = f.match(/(.*):/).at(1);
             ratingFlag = (ratingFlag == null ? rating.match(/\d*/)[0].length === rating.length : ratingFlag);
-            tableStr += "<tr class='clk-tr' data-href='note_" + e.id + "'><td class='fst'>R" + i + ":</td><td class='scd'>" + rating + "</td></tr>";
+            tableStr += "<tr class='clk-tr' data-href='note_" + e.id + "'><td class='fst'>R" + (i + 1) + ":</td><td class='scd'>" + rating + "</td></tr>";
             ratings.push(rating);
         }
     });
