@@ -1,7 +1,7 @@
 {
   "name": "Openreview Quicklook",
   "description": "Quicklook the summary of openreview submissions",
-  "version": "0.3",
+  "version": "0.4",
   "homepage_url": "https://github.com/weigq/openview_quicklook",
   "manifest_version": 2,
   "background": {

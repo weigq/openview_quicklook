@@ -10,6 +10,7 @@ function mainFunc() {
         fetch('https://api.openreview.net/notes?forum=' + id, {
             method: 'GET',
             headers: {'Content-Type': 'application/json; charset=utf-8'},
+            credentials: 'include',
         })
             .then(response => response.json())
             .then(data => {
@@ -30,10 +31,10 @@ function parseData(reviews, decision) {
     let ratings = [], ratingFlag = null;
     let tableStr = "<table id='sum-tbl' style='display: table'><tr><td class='scd' colspan='2'>Quick👀Look</td></tr>";
     reviews.forEach((e, i) => {
-        let f = e.content.rating != null ? e.content.rating : (e.content.recommendation != null ? e.content.recommendation : null)
+        let f = e.content.rating != null ? e.content.rating : (e.content.recommendation != null ? e.content.recommendation : (e.content.preliminary_rating != null ? e.content.preliminary_rating : null))
         if (f == null) {}
         else {
-            let rating = f.match(/(.*):/).at(1);
+            let rating = f.match(/(.*):/) != null ? f.match(/(.*):/).at(1) : f.match(/(.*)-/) != null ? f.match(/(.*)-/).at(1) : null;
             ratingFlag = (ratingFlag == null ? rating.match(/\d*/)[0].length === rating.length : ratingFlag);
             tableStr += "<tr class='clk-tr' data-href='note_" + e.id + "'><td class='fst'>R" + (i + 1) + ":</td><td class='scd'>" + rating + "</td></tr>";
             ratings.push(rating);
