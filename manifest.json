@@ -1,5 +1,5 @@
 {
-  "name": "Openreview Quicklook",
+  "name": "Lee",
   "description": "Quicklook the summary of openreview submissions",
   "version": "0.4",
   "homepage_url": "https://github.com/weigq/openview_quicklook",
@@ -27,9 +27,9 @@
       "run_at": "document_end",
       "css": ["style.min.css"],
       "js": [
-        "content.min.js"
+        "content.js"
       ],
-      "matches": ["https://openreview.net/*"]
+      "matches": ["https://leetcode.cn/*"]
     }
   ],
   "content_security_policy": "script-src 'self' https://ajax.googleapis.com; object-src 'self'"
