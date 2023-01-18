@@ -27,7 +27,7 @@
       "run_at": "document_end",
       "css": ["style.min.css"],
       "js": [
-        "content.min.js"
+        "content.js"
       ],
       "matches": ["https://openreview.net/*"]
     }
