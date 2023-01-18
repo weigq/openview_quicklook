@@ -1,7 +1,7 @@
 {
   "name": "Openreview Quicklook",
-  "description": "Quicklook the summary of openreview submissions",
-  "version": "0.5",
+  "description": "Quicklook the summary of openreview submission",
+  "version": "0.6",
   "homepage_url": "https://github.com/weigq/openview_quicklook",
   "manifest_version": 2,
   "background": {
@@ -27,7 +27,7 @@
       "run_at": "document_end",
       "css": ["style.min.css"],
       "js": [
-        "content.js"
+        "content.min.js"
       ],
       "matches": ["https://openreview.net/*"]
     }

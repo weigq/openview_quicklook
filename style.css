@@ -82,3 +82,17 @@ img:is(#nav-arrow) {
     width: 28px;
 }
 
+a {
+    color: white;
+    text-decoration: none;
+}
+
+a:visited,
+a:active {
+    color: white;
+}
+
+a:hover {
+    color: white;
+    text-decoration: none;
+}

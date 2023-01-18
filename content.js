@@ -29,9 +29,9 @@ function parseData(reviews, decision) {
     sumNav.className = 'sum-nav';
     // parse data
     let ratings = [], ratingFlag = null;
-    let tableStr = "<table id='sum-tbl' style='display: table'><tr><td class='scd' colspan='2'>Quick👀Look</td></tr>";
+    let tableStr = "<table id='sum-tbl' style='display: table'><tr><td class='scd' colspan='2'><a href='https://github.com/weigq/openview_quicklook'>Quick👀Look</a></td></tr>";
     reviews.forEach((e, i) => {
-        let f = e.content.rating != null ? e.content.rating : (e.content.recommendation != null ? e.content.recommendation : (e.content.final_rating != null ? e.content.final_rating : (e.content.preliminary_rating != null ? e.content.preliminary_rating : null)))
+        let f = e.content.rating != null ? e.content.rating : (e.content.recommendation != null ? e.content.recommendation : (e.content.final_rating != null ? e.content.final_rating : (e.content.preliminary_rating != null ? e.content.preliminary_rating : (e.content.overall_recommendation != null ? e.content.overall_recommendation : null))))
         if (f == null) {}
         else {
             let rating = f.match(/(.*):/) != null ? f.match(/(.*):/).at(1) : f.match(/(.*)-/) != null ? f.match(/(.*)-/).at(1) : f;
