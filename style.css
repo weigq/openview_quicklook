@@ -82,17 +82,17 @@ img:is(#nav-arrow) {
     width: 28px;
 }
 
-a {
+.sum-nav a {
     color: white;
     text-decoration: none;
 }
 
-a:visited,
-a:active {
+.sum-nav a:visited,
+.sum-nav a:active {
     color: white;
 }
 
-a:hover {
-    color: white;
+.sum-nav a:hover {
+    color: #3f6978;
     text-decoration: none;
 }
