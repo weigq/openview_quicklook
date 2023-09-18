@@ -7,20 +7,37 @@ function mainFunc() {
     if (href == null) {}
     else {
         let id = href.at(1);
-        fetch('https://api.openreview.net/notes?forum=' + id, {
+        fetch('https://api2.openreview.net/notes?forum=' + id, {
             method: 'GET',
             headers: {'Content-Type': 'application/json; charset=utf-8'},
             credentials: 'include',
         })
             .then(response => response.json())
-            .then(data => {
-                parseData(
-                    data.notes.filter(e => e.replyto === id && e.invitation.toLowerCase().includes('review')).sort((a, b) => b.number - a.number),
-                    data.notes.filter(e => e.replyto === id && e.invitation.toLowerCase().includes('decision') && 'content' in e ? 'decision' in e.content : false),
-                    );
+            .then(data1 => {
+                if (data1 === null || data1.notes.length === 0) {
+                    return fetch('https://api.openreview.net/notes?forum=' + id, {
+                        method: 'GET',
+                        headers: {'Content-Type': 'application/json; charset=utf-8'},
+                        credentials: 'include',
+                    })
+                        .then(response => response.json())
+                        .then(data2 => {
+                            parseData(
+                                data2.notes.filter(e => e.replyto === id && e.invitation.toLowerCase().includes('official_review')).sort((a, b) => b.number - a.number),
+                                data2.notes.filter(e => e.replyto === id && e.invitation.toLowerCase().includes('decision') && 'content' in e ? 'decision' in e.content : false),
+                                );
+                        })
+                        .catch((error) => {console.error('Error: ' + error)})
+                } else {
+                    parseData(
+                        data1.notes.filter(e => e.replyto === id && e.invitations[0].toLowerCase().includes('official_review')).sort((a, b) => b.number - a.number),
+                        data1.notes.filter(e => e.replyto === id && e.invitations[0].toLowerCase().includes('decision') && 'content' in e ? 'decision' in e.content : false),
+                        );
+                }
             })
             .catch((error) => {console.error('Error: ' + error)})
-}}
+    }
+}
 
 function parseData(reviews, decision) {
     if (reviews.length === 0) {return;}
@@ -28,23 +45,55 @@ function parseData(reviews, decision) {
     let sumNav = document.createElement('div');
     sumNav.className = 'sum-nav';
     // parse data
-    let ratings = [], ratingFlag = null;
+    let ratings = [];
+    let isNumber = null;
     let tableStr = "<table id='sum-tbl' style='display: table'><tr><td class='scd' colspan='2'><a href='https://github.com/weigq/openview_quicklook'>Quick👀Look</a></td></tr>";
-    reviews.forEach((e, i) => {
-        let f = e.content.rating != null ? e.content.rating : (e.content.recommendation != null ? e.content.recommendation : (e.content.final_rating != null ? e.content.final_rating : (e.content.preliminary_rating != null ? e.content.preliminary_rating : (e.content.overall_recommendation != null ? e.content.overall_recommendation : null))))
+    reviews.forEach((elem, i) => {
+        let f = null;
+        if (elem.content.rating != null) {
+            // neurips -> 10: xxx...
+            f = elem.content.rating.value;
+        } else if (elem.content.recommendation != null) {
+            // iclr 2023 -> 10: xxx...
+            f = elem.content.recommendation;
+        } else if (elem.content.preliminary_rating != null) {
+            // acmmm -> accept: xxx.
+            f = elem.content.preliminary_rating;
+        } else if (elem.content.overall_recommendation != null) {
+            // cvpr -> 5: xxx.
+            f = elem.content.overall_recommendation;
+        } else if (elem.content.final_rating != null) {
+            f = elem.content.final_rating;
+        }
         if (f == null) {}
         else {
-            let rating = f.match(/(.*):/) != null ? f.match(/(.*):/).at(1) : f.match(/(.*)-/) != null ? f.match(/(.*)-/).at(1) : f;
-            ratingFlag = (ratingFlag == null ? rating.match(/\d*/)[0].length === rating.length : ratingFlag);
-            tableStr += "<tr class='clk-tr' data-href='note_" + e.id + "'><td class='fst'>R" + (i + 1) + ":</td><td class='scd'>" + rating + "</td></tr>";
+            let rating;
+            // get rating
+            if (f.match(/(.*?):/) != null) {
+                rating = f.match(/(.*?):/)[1];
+            } else if (f.match(/(.*?)-/) != null) {
+                rating = f.match(/(.*?)-/)[1];
+            } else {
+                rating = null;
+            }
+
+            // if rating is number
+            if (isNumber == null && rating != null && rating.match(/\d*/)[0].length === rating.length) {
+                isNumber = true;
+            }
+
+            tableStr += "<tr class='clk-tr' data-href=" + elem.id + "><td class='fst'>R" + (i + 1) + ":</td><td class='scd'>" + rating + "</td></tr>";
             ratings.push(rating);
         }
     });
-    // rating is score
-    if (ratingFlag === true) {
-        let _rating = ratings.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10)) / ratings.length;
-        tableStr += "<tr class='last'><td class='fst'>avg:</td><td class='scd'>" + _rating.toFixed(2) + "</td></tr>";
+
+    // if rating is number
+    if (isNumber === true) {
+        let avg_rating = ratings.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10)) / ratings.length;
+        tableStr += "<tr class='last'><td class='fst'>avg:</td><td class='scd'>" + avg_rating.toFixed(2) + "</td></tr>";
     }
+
+    // decision
     if (decision.length > 0) {
         tableStr += "<tr class='last'><td colspan='2' class='scd'>" + decision[0].content.decision + "</td></tr>";
     }
@@ -55,13 +104,28 @@ function parseData(reviews, decision) {
     addClick();
 }
 
+const getOffsetTop = element => {
+    let offsetTop = 0;
+    while(element) {
+        offsetTop += element.offsetTop;
+        element = element.offsetParent;
+    }
+    return offsetTop;
+}
+
 function addClick() {
     let trs = document.querySelectorAll('.clk-tr');
     trs.forEach((e, i) => {
         e.addEventListener('click', () => {
             let href = e.getAttribute('data-href');
-            let y = document.getElementById(href).parentNode.offsetTop;
-            window.scroll({top: y - 50, behavior: 'smooth' });
+            let elem;
+            if (document.querySelector("[data-id='" + href + "']") != null) {
+                elem = document.querySelector("[data-id='" + href + "']");  // neurips23
+            } else {
+                elem = document.getElementById("note_" + href);  // before neurips23
+            }
+            let y = getOffsetTop(elem);
+            window.scroll({top: y - 75, behavior: 'smooth' });
         })
     })
     let arrow = document.getElementById('nav-arrow');
