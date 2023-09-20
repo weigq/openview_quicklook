@@ -9,9 +9,7 @@
       "background.js"
     ]
   },
-  "permissions": [
-    "activeTab"
-  ],
+  "permissions": [],
   "browser_action": {
   },
   "icons": {
