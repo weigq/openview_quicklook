@@ -52,7 +52,7 @@ function parseData(reviews, decision) {
         let f = null;
         if (elem.content.rating != null) {
             // neurips -> 10: xxx...
-            f = elem.content.rating.value;
+            f = elem.content.rating.value ? elem.content.rating.value : elem.content.rating;
         } else if (elem.content.recommendation != null) {
             // iclr 2023 -> 10: xxx...
             f = elem.content.recommendation;
