@@ -61,7 +61,7 @@ function parseData(reviews, decision) {
             f = elem.content.preliminary_rating;
         } else if (elem.content.overall_recommendation != null) {
             // cvpr -> 5: xxx.
-            f = elem.content.overall_recommendation;
+            f = elem.content.overall_recommendation.value ? elem.content.overall_recommendation.value : elem.content.overall_recommendation;
         } else if (elem.content.final_rating != null) {
             f = elem.content.final_rating;
         }
@@ -95,7 +95,8 @@ function parseData(reviews, decision) {
 
     // decision
     if (decision.length > 0) {
-        tableStr += "<tr class='last'><td colspan='2' class='scd'>" + decision[0].content.decision + "</td></tr>";
+        decision_value = decision[0].content.decision.value ? decision[0].content.decision.value : decision[0].content.decision;
+        tableStr += "<tr class='last'><td colspan='2' class='scd'>" + decision_value + "</td></tr>";
     }
     tableStr += "</table>";
     tableStr += "<div class='nav-btn'><img id='nav-arrow' src=" + arrowLeft + "></div>"
