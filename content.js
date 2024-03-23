@@ -51,7 +51,7 @@ function parseData(reviews, decision) {
     reviews.forEach((elem, i) => {
         let f = null;
         if (elem.content.rating != null) {
-            // neurips -> 10: xxx...
+            // neurips/icml -> 10: xxx...
             f = elem.content.rating.value ? elem.content.rating.value : elem.content.rating;
         } else if (elem.content.recommendation != null) {
             // iclr 2023 -> 10: xxx...
@@ -69,7 +69,9 @@ function parseData(reviews, decision) {
         else {
             let rating;
             // get rating
-            if (f.match(/(.*?):/) != null) {
+            if (typeof f === "number") {
+                rating = f.toString();
+            } else if (f.match(/(.*?):/) != null) {
                 rating = f.match(/(.*?):/)[1];
             } else if (f.match(/(.*?)-/) != null) {
                 rating = f.match(/(.*?)-/)[1];
