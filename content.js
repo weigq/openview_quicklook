@@ -1,5 +1,5 @@
-let arrowRight = chrome.extension.getURL('right-arrow.svg');
-let arrowLeft = chrome.extension.getURL('left-arrow.svg');
+let arrowRight = chrome.runtime.getURL('right-arrow.svg');
+let arrowLeft = chrome.runtime.getURL('left-arrow.svg');
 
 function mainFunc() {
     // clear history
