@@ -64,6 +64,8 @@ function parseData(reviews, decision) {
             f = elem.content.overall_recommendation.value ? elem.content.overall_recommendation.value : elem.content.overall_recommendation;
         } else if (elem.content.final_rating != null) {
             f = elem.content.final_rating;
+        } else if (elem.content.overall_assessment != null) {
+            f = elem.content.overall_assessment;
         }
         if (f == null) {}
         else {
@@ -71,16 +73,39 @@ function parseData(reviews, decision) {
             // get rating
             if (typeof f === "number") {
                 rating = f.toString();
-            } else if (f.match(/(.*?):/) != null) {
+            } else if (typeof f === "string" && f.match && f.match(/(.*?):/) != null) {
                 rating = f.match(/(.*?):/)[1];
-            } else if (f.match(/(.*?)-/) != null) {
+            } else if (typeof f === "string" && f.match && f.match(/(.*?)-/) != null) {
                 rating = f.match(/(.*?)-/)[1];
+            } else if (typeof f === "string" && f.match && f.match(/(.*?) = /) != null) {
+                rating = f.match(/(.*?) = /)[1];
+            } else if (typeof f === "object" && f !== null) {
+                // Handle object cases - check for common properties
+                if (f.value !== undefined) {
+                    rating = f.value;
+                } else if (f.rating !== undefined) {
+                    rating = f.rating;
+                } else if (f.score !== undefined) {
+                    rating = f.score;
+                } else {
+                    // Try to convert to string as fallback
+                    rating = JSON.stringify(f);
+                }
+                // If rating is still an object, convert to string
+                if (typeof rating === "object") {
+                    rating = JSON.stringify(rating);
+                }
             } else {
-                rating = null;
+                rating = f;
             }
 
+            // Convert rating to string if it's a number
+            if (typeof rating === "number") {
+                rating = rating.toString();
+            }
+            
             // if rating is number
-            if (isNumber == null && rating != null && rating.match(/\d*/)[0].length === rating.length) {
+            if (isNumber == null && rating != null && typeof rating === 'string' && rating.match(/\d*/)[0].length === rating.length) {
                 isNumber = true;
             }
 
