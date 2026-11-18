@@ -1,6 +1,53 @@
 let arrowRight = chrome.runtime.getURL('right-arrow.svg');
 let arrowLeft = chrome.runtime.getURL('left-arrow.svg');
 
+function getFieldValue(content, fieldName) {
+    const field = content ? content[fieldName] : null;
+    if (field == null) {
+        return null;
+    }
+    return typeof field === 'object' && 'value' in field ? field.value : field;
+}
+
+function extractRatingValue(rawRating) {
+    if (typeof rawRating === 'number') {
+        return rawRating.toString();
+    }
+    if (typeof rawRating !== 'string') {
+        return null;
+    }
+
+    const ratingText = rawRating.trim();
+    // Most venues use "8: description"; ACL ARR uses "2.5 = Borderline Findings".
+    const numericMatch = ratingText.match(/^(-?\d+(?:\.\d+)?)(?=\s*(?:[:=\-–—]|$))/);
+    if (numericMatch != null) {
+        return numericMatch[1];
+    }
+
+    // Preserve the previous behavior for non-numeric, labeled ratings.
+    const labelMatch = ratingText.match(/^(.*?)\s*(?::|=)/);
+    return labelMatch != null ? labelMatch[1] : ratingText;
+}
+
+function getReviewRating(content) {
+    const fields = [
+        'rating',                  // NeurIPS, ICML, ICLR 2025+, etc.
+        'recommendation',          // ICLR 2023 and 2024
+        'preliminary_rating',      // ACM MM
+        'overall_assessment',      // ACL Rolling Review (ARR)
+        'overall_recommendation',  // CVPR
+        'final_rating'
+    ];
+
+    for (const field of fields) {
+        const value = getFieldValue(content, field);
+        if (value != null) {
+            return value;
+        }
+    }
+    return null;
+}
+
 function mainFunc() {
     // clear history
     let href = window.location.href.match(/forum\?id=(.[^&^#]*)(&.*)?(#.*)?/);
@@ -46,58 +93,28 @@ function parseData(reviews, decision) {
     sumNav.className = 'sum-nav';
     // parse data
     let ratings = [];
-    let isNumber = null;
     let tableStr = "<table id='sum-tbl' style='display: table'><tr><td class='scd' colspan='2'><a href='https://github.com/weigq/openview_quicklook'>Quick👀Look</a></td></tr>";
     reviews.forEach((elem, i) => {
-        let f = null;
-        if (elem.content.rating != null) {
-            // neurips/icml -> 10: xxx...
-            f = elem.content.rating.value ? elem.content.rating.value : elem.content.rating;
-        } else if (elem.content.recommendation != null) {
-            // iclr 2023 -> 10: xxx...
-            f = elem.content.recommendation;
-        } else if (elem.content.preliminary_rating != null) {
-            // acmmm -> accept: xxx.
-            f = elem.content.preliminary_rating;
-        } else if (elem.content.overall_recommendation != null) {
-            // cvpr -> 5: xxx.
-            f = elem.content.overall_recommendation.value ? elem.content.overall_recommendation.value : elem.content.overall_recommendation;
-        } else if (elem.content.final_rating != null) {
-            f = elem.content.final_rating;
-        }
-        if (f == null) {}
+        const rawRating = getReviewRating(elem.content);
+        if (rawRating == null) {}
         else {
-            let rating;
-            // get rating
-            if (typeof f === "number") {
-                rating = f.toString();
-            } else if (f.match(/(.*?):/) != null) {
-                rating = f.match(/(.*?):/)[1];
-            } else if (f.match(/(.*?)-/) != null) {
-                rating = f.match(/(.*?)-/)[1];
-            } else {
-                rating = null;
-            }
-
-            // if rating is number
-            if (isNumber == null && rating != null && rating.match(/\d*/)[0].length === rating.length) {
-                isNumber = true;
-            }
+            const rating = extractRatingValue(rawRating);
 
             tableStr += "<tr class='clk-tr' data-href=" + elem.id + "><td class='fst'>R" + (i + 1) + ":</td><td class='scd'>" + rating + "</td></tr>";
             ratings.push(rating);
         }
     });
 
-    // if rating is number
-    if (isNumber === true) {
-        let avg_rating = ratings.reduce((a, b) => parseInt(a, 10) + parseInt(b, 10)) / ratings.length;
+    // Show an average only when every displayed rating is numeric.
+    const numericRatings = ratings.map(rating => Number(rating));
+    if (ratings.length > 0 && numericRatings.every(rating => Number.isFinite(rating))) {
+        const avg_rating = numericRatings.reduce((a, b) => a + b, 0) / numericRatings.length;
         tableStr += "<tr class='last'><td class='fst'>avg:</td><td class='scd'>" + avg_rating.toFixed(2) + "</td></tr>";
     }
 
     // decision
     if (decision.length > 0) {
-        decision_value = decision[0].content.decision.value ? decision[0].content.decision.value : decision[0].content.decision;
+        const decision_value = getFieldValue(decision[0].content, 'decision');
         tableStr += "<tr class='last'><td colspan='2' class='scd'>" + decision_value + "</td></tr>";
     }
     tableStr += "</table>";
