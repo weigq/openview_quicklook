@@ -17,4 +17,4 @@ Extension available:
 - [x] Quickly get the information (score and decision) of submissions on Openreview.
 - [x] Click on the rating to jump to the location of its corresponding comments.
 - [x] Automatically display on a submission page on Openreview.
-- [x] Support most conference/journal (e.g., NeurIPS, ICLR, etc) submissions collected on Openreview.
+- [x] Support most conference/journal (e.g., NeurIPS, ICLR, ACL ARR, etc) submissions collected on Openreview.
